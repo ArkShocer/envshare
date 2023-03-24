@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
             href="/"
             className="text-2xl font-semibold duration-150 text-zinc-100 hover:text-white"
           >
-            EnvShare
+            NXSecret
           </Link>
           {/* Desktop navigation */}
           <nav className="flex items-center grow">
