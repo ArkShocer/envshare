@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 import { generateId } from "pkg/id";
 
-type Request = {
+interface Request {
   encrypted: string;
   ttl?: number;
   reads: number;
   iv: string;
-};
+  password: string
+}
 
 const redis = Redis.fromEnv();
 export default async function handler(req: NextRequest) {
@@ -22,6 +23,7 @@ export default async function handler(req: NextRequest) {
     remainingReads: reads > 0 ? reads : null,
     encrypted,
     iv,
+    password: "_tmp_",
   });
   if (ttl) {
     tx.expire(key, ttl);
