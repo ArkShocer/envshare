@@ -36,25 +36,6 @@ export default function RootLayout({
                 many others{" "}
               </Link>
             </p>
-            <p>
-              EnvShare is deployed on{" "}
-              <Link
-                target="_blank"
-                href="https://vercel.com"
-                className="underline duration-150 hover:text-zinc-200"
-              >
-                Vercel
-              </Link>{" "}
-              and uses{" "}
-              <Link
-                target="_blank"
-                href="https://upstash.com"
-                className="underline duration-150 hover:text-zinc-200"
-              >
-                Upstash
-              </Link>{" "}
-              for storing encrypted data.
-            </p>
           </div>
         </footer>
       </body>
