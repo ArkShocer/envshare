@@ -23,14 +23,13 @@ export function encodeCompositeKey(
 /**
  * To share links easily, we encode the id, where the data is stored in redis, together with the secret encryption key.
  */
-export function decodeCompositeKey(
-  compositeKey: string,
-  compositePassword: string
-): { id: string; encryptionKey: Uint8Array; version: number, password: string } {
+export function decodeCompositeKey(compositeKey: string): {
+  id: string;
+  encryptionKey: Uint8Array;
+  version: number;
+} {
   const decoded = fromBase58(compositeKey);
-  const decodedPassword = fromBase58(compositePassword);
 
-  const versionPassword = decodedPassword.at(0);
   const version = decoded.at(0);
 
   if (version === 1 || version === 2) {
@@ -41,7 +40,6 @@ export function decodeCompositeKey(
         1 + ID_LENGTH + ENCRYPTION_KEY_LENGTH
       ),
       version,
-      password: toBase58(decodedPassword.slice(1, 1 + ID_LENGTH)),
     };
   }
 

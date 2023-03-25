@@ -1,6 +1,8 @@
 import { Redis as UpstashRedis } from "@upstash/redis";
 import { RedisClientType, createClient } from "redis";
 
+// For Local Redis Server instead of upstash
+
 export default class Redis {
   client: UpstashRedis | RedisClientType;
 

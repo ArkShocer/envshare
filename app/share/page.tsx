@@ -11,9 +11,11 @@ import { encrypt } from "pkg/encryption";
 import { ErrorMessage } from "@components/error";
 import { encodeCompositeKey } from "pkg/encoding";
 import { LATEST_KEY_VERSION } from "pkg/constants";
+import { generatePassword } from "pkg/password";
 
 export default function Home() {
   const [text, setText] = useState("");
+  const [password, setPassword] = useState("babayaga");
   const [reads, setReads] = useState(1);
 
   const [ttl, setTtl] = useState(7);
@@ -30,11 +32,13 @@ export default function Home() {
       setLink("");
       setLoading(true);
 
+      const p = generatePassword();
+      setPassword(p);
       // generated password here
-      const { encrypted, iv, key, encryptedPassword } = await encrypt(
-        text,
-        "babayaga"
-      );
+      const { encrypted, iv, key, encryptedPassword } = await encrypt(text, p);
+
+      console.log(encryptedPassword);
+      console.log(encrypted);
 
       const { id } = (await fetch("/api/v1/store", {
         method: "POST",
@@ -94,7 +98,7 @@ export default function Home() {
           </div>
           <div className="relative flex items-stretch flex-grow mt-16 focus-within:z-10">
             <pre className="px-4 py-3 font-mono text-center bg-transparent border rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100">
-             "password"
+              {password}
             </pre>
           </div>
         </div>

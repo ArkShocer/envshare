@@ -15,8 +15,7 @@ import { ErrorMessage } from "@components/error";
 
 export default function Unseal() {
   const [compositeKey, setCompositeKey] = useState<string>("");
-  const [compositePassword, setCompositePassword] =
-    useState<string>("babayaga");
+  const [password, setPassword] = useState<string>("babayaga");
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCompositeKey(window.location.hash.replace(/^#/, ""));
@@ -39,10 +38,7 @@ export default function Unseal() {
         throw new Error("No id provided");
       }
 
-      const { id, encryptionKey, version, password } = decodeCompositeKey(
-        compositeKey,
-        compositePassword
-      );
+      const { id, encryptionKey, version } = decodeCompositeKey(compositeKey);
       console.log(password);
       const res = await fetch(`/api/v1/load?id=${id}`);
       if (!res.ok) {
@@ -58,7 +54,7 @@ export default function Unseal() {
 
       console.log(json.password);
 
-      const decryptedPassword = await decryptPassword(
+      const decryptedPassword = await decrypt(
         json.password,
         encryptionKey,
         json.iv,
@@ -66,9 +62,10 @@ export default function Unseal() {
       );
       console.log("--pw--");
       console.log(decryptedPassword);
-      console.log(compositePassword)
+      console.log(password);
+      console.log("dont forget to remove this ~DS")
       console.log("--pw--");
-      if (decryptedPassword === compositePassword) {
+      if (decryptedPassword === password) {
         const decrypted = await decrypt(
           json.encrypted,
           encryptionKey,
@@ -78,7 +75,7 @@ export default function Unseal() {
 
         setText(decrypted);
       } else {
-        console.log("Password not the same, not encrypting the secret");
+        console.log("Passwords do not match :)");
       }
     } catch (e) {
       console.error(e);
@@ -196,11 +193,11 @@ export default function Unseal() {
             </label>
             <input
               type="text"
-              name="compositePassword"
-              id="compositePassword"
+              name="password"
+              id="password"
               className="w-full p-0 text-base bg-transparent border-0 appearance-none text-zinc-100 placeholder-zinc-500 focus:ring-0 sm:text-sm"
-              value={compositePassword}
-              onChange={(e) => setCompositePassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
