@@ -11,7 +11,12 @@ export default async function handler(req: NextRequest) {
   const key = ["envshare", id].join(":");
 
   const [data, _] = await Promise.all([
-    await redis.hgetall<{ encrypted: string; remainingReads: number | null; iv: string }>(key),
+    await redis.hgetall<{
+      encrypted: string;
+      remainingReads: number | null;
+      iv: string;
+      password: string
+    }>(key),
     await redis.incr("envshare:metrics:reads"),
   ]);
   if (!data) {
@@ -27,8 +32,12 @@ export default async function handler(req: NextRequest) {
     // Decrement the number of reads and return the remaining reads
     remainingReads = await redis.hincrby(key, "remainingReads", -1);
   }
-
-  return NextResponse.json({ iv: data.iv, encrypted: data.encrypted, remainingReads });
+  console.log(data.password)
+  return NextResponse.json({
+    iv: data.iv,
+    encrypted: data.encrypted,
+    remainingReads,
+  });
 }
 
 export const config = {

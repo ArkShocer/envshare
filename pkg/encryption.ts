@@ -7,11 +7,19 @@ export async function generateKey() {
       length: 128,
     },
     true,
-    ["encrypt", "decrypt"],
+    ["encrypt", "decrypt"]
   );
 }
 
-export async function encrypt(text: string): Promise<{ encrypted: Uint8Array; iv: Uint8Array; key: Uint8Array }> {
+export async function encrypt(
+  text: string,
+  password: string
+): Promise<{
+  encrypted: Uint8Array;
+  iv: Uint8Array;
+  key: Uint8Array;
+  password: Uint8Array;
+}> {
   const key = await generateKey();
 
   const iv = crypto.getRandomValues(new Uint8Array(16));
@@ -22,7 +30,16 @@ export async function encrypt(text: string): Promise<{ encrypted: Uint8Array; iv
       iv,
     },
     key,
-    new TextEncoder().encode(text),
+    new TextEncoder().encode(text)
+  );
+
+  const encryptedPasswordBuffer = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    key,
+    new TextEncoder().encode(password)
   );
 
   const exportedKey = await crypto.subtle.exportKey("raw", key);
@@ -30,13 +47,25 @@ export async function encrypt(text: string): Promise<{ encrypted: Uint8Array; iv
     encrypted: new Uint8Array(encryptedBuffer),
     key: new Uint8Array(exportedKey),
     iv,
+    password: new Uint8Array(encryptedPasswordBuffer),
   };
 }
 
-export async function decrypt(encrypted: string, keyData: Uint8Array, iv: string, keyVersion: number): Promise<string> {
+export async function decrypt(
+  encrypted: string,
+  keyData: Uint8Array,
+  iv: string,
+  keyVersion: number
+): Promise<string> {
   const algorithm = keyVersion === 1 ? "AES-CBC" : "AES-GCM";
 
-  const key = await crypto.subtle.importKey("raw", keyData, { name: algorithm, length: 128 }, false, ["decrypt"]);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: algorithm, length: 128 },
+    false,
+    ["decrypt"]
+  );
 
   const decrypted = await crypto.subtle.decrypt(
     {
@@ -44,7 +73,7 @@ export async function decrypt(encrypted: string, keyData: Uint8Array, iv: string
       iv: fromBase58(iv),
     },
     key,
-    fromBase58(encrypted),
+    fromBase58(encrypted)
   );
 
   return new TextDecoder().decode(decrypted);

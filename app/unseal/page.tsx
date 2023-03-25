@@ -1,6 +1,10 @@
 "use client";
 import React, { Fragment, useState, useEffect } from "react";
-import { ClipboardDocumentCheckIcon, ClipboardDocumentIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import {
+  ClipboardDocumentCheckIcon,
+  ClipboardDocumentIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
 
 import { Title } from "@components/title";
 
@@ -11,6 +15,7 @@ import { ErrorMessage } from "@components/error";
 
 export default function Unseal() {
   const [compositeKey, setCompositeKey] = useState<string>("");
+  const [compositePassword, setCompositePassword] = useState<string>("");
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCompositeKey(window.location.hash.replace(/^#/, ""));
@@ -45,7 +50,12 @@ export default function Unseal() {
       };
       setRemainingReads(json.remainingReads);
 
-      const decrypted = await decrypt(json.encrypted, encryptionKey, json.iv, version);
+      const decrypted = await decrypt(
+        json.encrypted,
+        encryptionKey,
+        json.iv,
+        version
+      );
 
       setText(decrypted);
     } catch (e) {
@@ -65,18 +75,24 @@ export default function Unseal() {
             <div className="text-sm text-center text-zinc-600">
               {remainingReads > 0 ? (
                 <p>
-                  This document can be read <span className="text-zinc-100">{remainingReads}</span> more times.
+                  This document can be read{" "}
+                  <span className="text-zinc-100">{remainingReads}</span> more
+                  times.
                 </p>
               ) : (
                 <p className="text-zinc-400">
-                  This was the last time this document could be read. It was deleted from storage.
+                  This was the last time this document could be read. It was
+                  deleted from storage.
                 </p>
               )}
             </div>
           ) : null}
           <pre className="px-4 py-3 mt-8 font-mono text-left bg-transparent border rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100">
             <div className="flex items-start px-1 text-sm">
-              <div aria-hidden="true" className="pr-4 font-mono border-r select-none border-zinc-300/5 text-zinc-700">
+              <div
+                aria-hidden="true"
+                className="pr-4 font-mono border-r select-none border-zinc-300/5 text-zinc-700"
+              >
                 {Array.from({
                   length: text.split("\n").length,
                 }).map((_, index) => (
@@ -111,7 +127,10 @@ export default function Unseal() {
               }}
             >
               {copied ? (
-                <ClipboardDocumentCheckIcon className="w-5 h-5" aria-hidden="true" />
+                <ClipboardDocumentCheckIcon
+                  className="w-5 h-5"
+                  aria-hidden="true"
+                />
               ) : (
                 <ClipboardDocumentIcon className="w-5 h-5" aria-hidden="true" />
               )}{" "}
@@ -130,7 +149,10 @@ export default function Unseal() {
           <Title>Decrypt a document</Title>
 
           <div className="px-3 py-2 mt-8 border rounded border-zinc-600 focus-within:border-zinc-100/80 focus-within:ring-0 ">
-            <label htmlFor="id" className="block text-xs font-medium text-zinc-100">
+            <label
+              htmlFor="id"
+              className="block text-xs font-medium text-zinc-100"
+            >
               ID
             </label>
             <input
@@ -150,7 +172,13 @@ export default function Unseal() {
               loading ? "animate-pulse" : ""
             }`}
           >
-            <span>{loading ? <Cog6ToothIcon className="w-5 h-5 animate-spin" /> : "Unseal"}</span>
+            <span>
+              {loading ? (
+                <Cog6ToothIcon className="w-5 h-5 animate-spin" />
+              ) : (
+                "Unseal"
+              )}
+            </span>
           </button>
         </form>
       )}

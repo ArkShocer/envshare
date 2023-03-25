@@ -26,7 +26,7 @@ export default function Home() {
       setLink("");
       setLoading(true);
 
-      const { encrypted, iv, key } = await encrypt(text);
+      const { encrypted, iv, key } = await encrypt(text, "babayaga");
 
       const { id } = (await fetch("/api/v1/store", {
         method: "POST",
@@ -35,6 +35,7 @@ export default function Home() {
           reads,
           encrypted: toBase58(encrypted),
           iv: toBase58(iv),
+          password: toBase58(encrypted)
         }),
       }).then((r) => r.json())) as { id: string };
 
