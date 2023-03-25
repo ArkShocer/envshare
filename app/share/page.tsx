@@ -1,7 +1,11 @@
 "use client";
 import { toBase58 } from "util/base58";
 import { useState, Fragment } from "react";
-import { Cog6ToothIcon, ClipboardDocumentIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
+import {
+  Cog6ToothIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/react/24/outline";
 import { Title } from "@components/title";
 import { encrypt } from "pkg/encryption";
 import { ErrorMessage } from "@components/error";
@@ -26,7 +30,11 @@ export default function Home() {
       setLink("");
       setLoading(true);
 
-      const { encrypted, iv, key } = await encrypt(text, "babayaga");
+      // generated password here
+      const { encrypted, iv, key, encryptedPassword } = await encrypt(
+        text,
+        "babayaga"
+      );
 
       const { id } = (await fetch("/api/v1/store", {
         method: "POST",
@@ -35,7 +43,7 @@ export default function Home() {
           reads,
           encrypted: toBase58(encrypted),
           iv: toBase58(iv),
-          password: toBase58(encrypted)
+          password: toBase58(encryptedPassword),
         }),
       }).then((r) => r.json())) as { id: string };
 
@@ -74,12 +82,20 @@ export default function Home() {
               }}
             >
               {copied ? (
-                <ClipboardDocumentCheckIcon className="w-5 h-5" aria-hidden="true" />
+                <ClipboardDocumentCheckIcon
+                  className="w-5 h-5"
+                  aria-hidden="true"
+                />
               ) : (
                 <ClipboardDocumentIcon className="w-5 h-5" aria-hidden="true" />
               )}{" "}
               <span>{copied ? "Copied" : "Copy"}</span>
             </button>
+          </div>
+          <div className="relative flex items-stretch flex-grow mt-16 focus-within:z-10">
+            <pre className="px-4 py-3 font-mono text-center bg-transparent border rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100">
+             "password"
+            </pre>
           </div>
         </div>
       ) : (
@@ -95,7 +111,10 @@ export default function Home() {
 
           <pre className="px-4 py-3 mt-8 font-mono text-left bg-transparent border rounded border-zinc-600 focus:border-zinc-100/80 focus:ring-0 sm:text-sm text-zinc-100">
             <div className="flex items-start px-1 text-sm">
-              <div aria-hidden="true" className="pr-4 font-mono border-r select-none border-zinc-300/5 text-zinc-700">
+              <div
+                aria-hidden="true"
+                className="pr-4 font-mono border-r select-none border-zinc-300/5 text-zinc-700"
+              >
                 {Array.from({
                   length: text.split("\n").length,
                 }).map((_, index) => (
@@ -149,7 +168,10 @@ export default function Home() {
             </div>
 
             <div className="w-full h-16 px-3 py-2 duration-150 border rounded sm:w-2/5 hover:border-zinc-100/80 border-zinc-600 focus-within:border-zinc-100/80 focus-within:ring-0 ">
-              <label htmlFor="reads" className="block text-xs font-medium text-zinc-100">
+              <label
+                htmlFor="reads"
+                className="block text-xs font-medium text-zinc-100"
+              >
                 READS
               </label>
               <input
@@ -162,7 +184,10 @@ export default function Home() {
               />
             </div>
             <div className="relative w-full h-16 px-3 py-2 duration-150 border rounded sm:w-2/5 hover:border-zinc-100/80 border-zinc-600 focus-within:border-zinc-100/80 focus-within:ring-0 ">
-              <label htmlFor="reads" className="block text-xs font-medium text-zinc-100">
+              <label
+                htmlFor="reads"
+                className="block text-xs font-medium text-zinc-100"
+              >
                 TTL
               </label>
               <input
@@ -183,8 +208,12 @@ export default function Home() {
                   defaultValue={60 * 60 * 24}
                 >
                   <option value={60}>{ttl === 1 ? "Minute" : "Minutes"}</option>
-                  <option value={60 * 60}>{ttl === 1 ? "Hour" : "Hours"}</option>
-                  <option value={60 * 60 * 24}>{ttl === 1 ? "Day" : "Days"}</option>
+                  <option value={60 * 60}>
+                    {ttl === 1 ? "Hour" : "Hours"}
+                  </option>
+                  <option value={60 * 60 * 24}>
+                    {ttl === 1 ? "Day" : "Days"}
+                  </option>
                 </select>
               </div>
             </div>
@@ -198,26 +227,34 @@ export default function Home() {
                 : "text-zinc-900 hover:text-zinc-100 hover:ring-zinc-600/80  hover:bg-zinc-900/20"
             } ${loading ? "animate-pulse" : ""}`}
           >
-            <span>{loading ? <Cog6ToothIcon className="w-5 h-5 animate-spin" /> : "Share"}</span>
+            <span>
+              {loading ? (
+                <Cog6ToothIcon className="w-5 h-5 animate-spin" />
+              ) : (
+                "Share"
+              )}
+            </span>
           </button>
 
           <div className="mt-8">
             <ul className="space-y-2 text-xs text-zinc-500">
               <li>
                 <p>
-                  <span className="font-semibold text-zinc-400">Reads:</span> The number of reads determines how often
-                  the data can be shared, before it deletes itself. 0 means unlimited.
+                  <span className="font-semibold text-zinc-400">Reads:</span>{" "}
+                  The number of reads determines how often the data can be
+                  shared, before it deletes itself. 0 means unlimited.
                 </p>
               </li>
               <li>
                 <p>
-                  <span className="font-semibold text-zinc-400">TTL:</span> You can add a TTL (time to live) to the
-                  data, to automatically delete it after a certain amount of time. 0 means no TTL.
+                  <span className="font-semibold text-zinc-400">TTL:</span> You
+                  can add a TTL (time to live) to the data, to automatically
+                  delete it after a certain amount of time. 0 means no TTL.
                 </p>
               </li>
               <p>
-                Clicking Share will generate a new symmetrical key and encrypt your data before sending only the
-                encrypted data to the server.
+                Clicking Share will generate a new symmetrical key and encrypt
+                your data before sending only the encrypted data to the server.
               </p>
             </ul>
           </div>

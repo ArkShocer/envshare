@@ -3,11 +3,19 @@ import { ID_LENGTH, ENCRYPTION_KEY_LENGTH } from "./constants";
 /**
  * To share links easily, we encode the id, where the data is stored in redis, together with the secret encryption key.
  */
-export function encodeCompositeKey(version: number, id: string, encryptionKey: Uint8Array): string {
+export function encodeCompositeKey(
+  version: number,
+  id: string,
+  encryptionKey: Uint8Array
+): string {
   if (version < 0 || version > 255) {
     throw new Error("Version must fit in a byte");
   }
-  const compositeKey = new Uint8Array([version, ...fromBase58(id), ...encryptionKey]);
+  const compositeKey = new Uint8Array([
+    version,
+    ...fromBase58(id),
+    ...encryptionKey,
+  ]);
 
   return toBase58(compositeKey);
 }
@@ -15,15 +23,25 @@ export function encodeCompositeKey(version: number, id: string, encryptionKey: U
 /**
  * To share links easily, we encode the id, where the data is stored in redis, together with the secret encryption key.
  */
-export function decodeCompositeKey(compositeKey: string): { id: string; encryptionKey: Uint8Array; version: number } {
+export function decodeCompositeKey(
+  compositeKey: string,
+  compositePassword: string
+): { id: string; encryptionKey: Uint8Array; version: number, password: string } {
   const decoded = fromBase58(compositeKey);
+  const decodedPassword = fromBase58(compositePassword);
+
+  const versionPassword = decodedPassword.at(0);
   const version = decoded.at(0);
 
   if (version === 1 || version === 2) {
     return {
       id: toBase58(decoded.slice(1, 1 + ID_LENGTH)),
-      encryptionKey: decoded.slice(1 + ID_LENGTH, 1 + ID_LENGTH + ENCRYPTION_KEY_LENGTH),
+      encryptionKey: decoded.slice(
+        1 + ID_LENGTH,
+        1 + ID_LENGTH + ENCRYPTION_KEY_LENGTH
+      ),
       version,
+      password: toBase58(decodedPassword.slice(1, 1 + ID_LENGTH)),
     };
   }
 

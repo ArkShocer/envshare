@@ -18,7 +18,7 @@ export async function encrypt(
   encrypted: Uint8Array;
   iv: Uint8Array;
   key: Uint8Array;
-  password: Uint8Array;
+  encryptedPassword: Uint8Array;
 }> {
   const key = await generateKey();
 
@@ -47,7 +47,7 @@ export async function encrypt(
     encrypted: new Uint8Array(encryptedBuffer),
     key: new Uint8Array(exportedKey),
     iv,
-    password: new Uint8Array(encryptedPasswordBuffer),
+    encryptedPassword: new Uint8Array(encryptedPasswordBuffer),
   };
 }
 
@@ -74,6 +74,36 @@ export async function decrypt(
     },
     key,
     fromBase58(encrypted)
+  );
+
+  return new TextDecoder().decode(decrypted);
+}
+
+
+// Useless function pretty much lul -> just use decrypt for password as well
+export async function decryptPassword(
+  encryptedPassword: string,
+  keyData: Uint8Array,
+  iv: string,
+  keyVersion: number
+): Promise<string> {
+  const algorithm = keyVersion === 1 ? "AES-CBC" : "AES-GCM";
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: algorithm, length: 128 },
+    false,
+    ["decrypt"]
+  );
+
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: algorithm,
+      iv: fromBase58(iv),
+    },
+    key,
+    fromBase58(encryptedPassword)
   );
 
   return new TextDecoder().decode(decrypted);

@@ -37,6 +37,7 @@ export default async function handler(req: NextRequest) {
     iv: data.iv,
     encrypted: data.encrypted,
     remainingReads,
+    password: data.password
   });
 }
 

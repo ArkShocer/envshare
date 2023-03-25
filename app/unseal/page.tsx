@@ -9,13 +9,14 @@ import {
 import { Title } from "@components/title";
 
 import { decodeCompositeKey } from "pkg/encoding";
-import { decrypt } from "pkg/encryption";
+import { decrypt, decryptPassword } from "pkg/encryption";
 import Link from "next/link";
 import { ErrorMessage } from "@components/error";
 
 export default function Unseal() {
   const [compositeKey, setCompositeKey] = useState<string>("");
-  const [compositePassword, setCompositePassword] = useState<string>("");
+  const [compositePassword, setCompositePassword] =
+    useState<string>("babayaga");
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCompositeKey(window.location.hash.replace(/^#/, ""));
@@ -38,7 +39,11 @@ export default function Unseal() {
         throw new Error("No id provided");
       }
 
-      const { id, encryptionKey, version } = decodeCompositeKey(compositeKey);
+      const { id, encryptionKey, version, password } = decodeCompositeKey(
+        compositeKey,
+        compositePassword
+      );
+      console.log(password);
       const res = await fetch(`/api/v1/load?id=${id}`);
       if (!res.ok) {
         throw new Error(await res.text());
@@ -47,17 +52,34 @@ export default function Unseal() {
         iv: string;
         encrypted: string;
         remainingReads: number | null;
+        password: string;
       };
       setRemainingReads(json.remainingReads);
 
-      const decrypted = await decrypt(
-        json.encrypted,
+      console.log(json.password);
+
+      const decryptedPassword = await decryptPassword(
+        json.password,
         encryptionKey,
         json.iv,
         version
       );
+      console.log("--pw--");
+      console.log(decryptedPassword);
+      console.log(compositePassword)
+      console.log("--pw--");
+      if (decryptedPassword === compositePassword) {
+        const decrypted = await decrypt(
+          json.encrypted,
+          encryptionKey,
+          json.iv,
+          version
+        );
 
-      setText(decrypted);
+        setText(decrypted);
+      } else {
+        console.log("Password not the same, not encrypting the secret");
+      }
     } catch (e) {
       console.error(e);
       setError((e as Error).message);
@@ -162,6 +184,23 @@ export default function Unseal() {
               className="w-full p-0 text-base bg-transparent border-0 appearance-none text-zinc-100 placeholder-zinc-500 focus:ring-0 sm:text-sm"
               value={compositeKey}
               onChange={(e) => setCompositeKey(e.target.value)}
+            />
+          </div>
+
+          <div className="px-3 py-2 mt-8 border rounded border-zinc-600 focus-within:border-zinc-100/80 focus-within:ring-0 ">
+            <label
+              htmlFor="id"
+              className="block text-xs font-medium text-zinc-100"
+            >
+              PASSWORD
+            </label>
+            <input
+              type="text"
+              name="compositePassword"
+              id="compositePassword"
+              className="w-full p-0 text-base bg-transparent border-0 appearance-none text-zinc-100 placeholder-zinc-500 focus:ring-0 sm:text-sm"
+              value={compositePassword}
+              onChange={(e) => setCompositePassword(e.target.value)}
             />
           </div>
 
