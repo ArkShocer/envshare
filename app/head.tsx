@@ -12,7 +12,7 @@ export default function Head() {
       />
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
-      <meta name="robots" content="all" />
+      <meta name="robots" content="noindex" />
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
     </>
   );

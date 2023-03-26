@@ -78,33 +78,3 @@ export async function decrypt(
 
   return new TextDecoder().decode(decrypted);
 }
-
-
-// Useless function pretty much lul -> just use decrypt for password as well
-export async function decryptPassword(
-  encryptedPassword: string,
-  keyData: Uint8Array,
-  iv: string,
-  keyVersion: number
-): Promise<string> {
-  const algorithm = keyVersion === 1 ? "AES-CBC" : "AES-GCM";
-
-  const key = await crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: algorithm, length: 128 },
-    false,
-    ["decrypt"]
-  );
-
-  const decrypted = await crypto.subtle.decrypt(
-    {
-      name: algorithm,
-      iv: fromBase58(iv),
-    },
-    key,
-    fromBase58(encryptedPassword)
-  );
-
-  return new TextDecoder().decode(decrypted);
-}

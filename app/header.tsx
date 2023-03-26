@@ -22,6 +22,7 @@ export const Header: React.FC = () => {
           <Link
             href="/"
             className="text-2xl font-semibold duration-150 text-zinc-100 hover:text-white"
+            shallow={true}
           >
             NXSecret
           </Link>
@@ -36,6 +37,7 @@ export const Header: React.FC = () => {
                       pathname === item.href ? "text-zinc-200" : "text-zinc-400"
                     }`}
                     href={item.href}
+                    shallow={true}
                   >
                     {item.name}
                   </Link>

@@ -37,9 +37,6 @@ export default function Home() {
       // generated password here
       const { encrypted, iv, key, encryptedPassword } = await encrypt(text, p);
 
-      console.log(encryptedPassword);
-      console.log(encrypted);
-
       const { id } = (await fetch("/api/v1/store", {
         method: "POST",
         body: JSON.stringify({

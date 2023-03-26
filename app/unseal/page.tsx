@@ -9,7 +9,7 @@ import {
 import { Title } from "@components/title";
 
 import { decodeCompositeKey } from "pkg/encoding";
-import { decrypt, decryptPassword } from "pkg/encryption";
+import { decrypt } from "pkg/encryption";
 import Link from "next/link";
 import { ErrorMessage } from "@components/error";
 
@@ -39,7 +39,6 @@ export default function Unseal() {
       }
 
       const { id, encryptionKey, version } = decodeCompositeKey(compositeKey);
-      console.log(password);
       const res = await fetch(`/api/v1/load?id=${id}`);
       if (!res.ok) {
         throw new Error(await res.text());
@@ -52,19 +51,12 @@ export default function Unseal() {
       };
       setRemainingReads(json.remainingReads);
 
-      console.log(json.password);
-
       const decryptedPassword = await decrypt(
         json.password,
         encryptionKey,
         json.iv,
         version
       );
-      console.log("--pw--");
-      console.log(decryptedPassword);
-      console.log(password);
-      console.log("dont forget to remove this ~DS")
-      console.log("--pw--");
       if (decryptedPassword === password) {
         const decrypted = await decrypt(
           json.encrypted,
