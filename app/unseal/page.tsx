@@ -15,7 +15,7 @@ import { ErrorMessage } from "@components/error";
 
 export default function Unseal() {
   const [compositeKey, setCompositeKey] = useState<string>("");
-  const [password, setPassword] = useState<string>("babayaga");
+  const [password, setPassword] = useState<string>("_pwd_");
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCompositeKey(window.location.hash.replace(/^#/, ""));
@@ -37,6 +37,8 @@ export default function Unseal() {
       if (!compositeKey) {
         throw new Error("No id provided");
       }
+
+      // add error if no password is provided
 
       const { id, encryptionKey, version } = decodeCompositeKey(compositeKey);
       const res = await fetch(`/api/v1/load?id=${id}`);
@@ -67,7 +69,7 @@ export default function Unseal() {
 
         setText(decrypted);
       } else {
-        console.log("Passwords do not match :)");
+        console.log("Error");
       }
     } catch (e) {
       console.error(e);
