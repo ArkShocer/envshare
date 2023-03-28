@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import {
   ClipboardDocumentCheckIcon,
   ClipboardDocumentIcon,
@@ -12,6 +12,7 @@ import { decodeCompositeKey } from "pkg/encoding";
 import { decrypt } from "pkg/encryption";
 import Link from "next/link";
 import { ErrorMessage } from "@components/error";
+import axios from "axios";
 
 export default function Unseal() {
   const [compositeKey, setCompositeKey] = useState<string>("");
@@ -38,32 +39,31 @@ export default function Unseal() {
         throw new Error("No id provided");
       }
 
+      if (!password) {
+        throw new Error("No password provided");
+      }
+
       // add error if no password is provided
 
       const { id, encryptionKey, version } = decodeCompositeKey(compositeKey);
-      const res = await fetch(`/api/v1/load?id=${id}`);
-      if (!res.ok) {
-        throw new Error(await res.text());
+      const _res = (await axios.post(`/api/v1/load?id=${id}`)).data;
+      if (!_res) {
+        throw new Error("error data retr");
       }
-      const json = (await res.json()) as {
-        iv: string;
-        encrypted: string;
-        remainingReads: number | null;
-        password: string;
-      };
-      setRemainingReads(json.remainingReads);
+
+      setRemainingReads(_res.remainingReads);
 
       const decryptedPassword = await decrypt(
-        json.password,
+        _res.password,
         encryptionKey,
-        json.iv,
+        _res.iv,
         version
       );
       if (decryptedPassword === password) {
         const decrypted = await decrypt(
-          json.encrypted,
+          _res.encrypted,
           encryptionKey,
-          json.iv,
+          _res.iv,
           version
         );
 

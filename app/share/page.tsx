@@ -12,6 +12,7 @@ import { ErrorMessage } from "@components/error";
 import { encodeCompositeKey } from "pkg/encoding";
 import { LATEST_KEY_VERSION } from "pkg/constants";
 import { generatePassword } from "pkg/password";
+import axios from "axios";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -37,18 +38,19 @@ export default function Home() {
       // generated password here
       const { encrypted, iv, key, encryptedPassword } = await encrypt(text, p);
 
-      const { id } = (await fetch("/api/v1/store", {
-        method: "POST",
-        body: JSON.stringify({
-          ttl: ttl * ttlMultiplier,
-          reads,
-          encrypted: toBase58(encrypted),
-          iv: toBase58(iv),
-          password: toBase58(encryptedPassword),
-        }),
-      }).then((r) => r.json())) as { id: string };
+      const id = await axios.post("/api/v1/store", {
+        ttl: ttl * ttlMultiplier,
+        reads,
+        encrypted: toBase58(encrypted),
+        iv: toBase58(iv),
+        password: toBase58(encryptedPassword),
+      });
 
-      const compositeKey = encodeCompositeKey(LATEST_KEY_VERSION, id, key);
+      const compositeKey = encodeCompositeKey(
+        LATEST_KEY_VERSION,
+        id.data.id,
+        key
+      );
 
       const url = new URL(window.location.href);
       url.pathname = "/unseal";

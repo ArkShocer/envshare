@@ -32,7 +32,6 @@ export default async function handler(req: NextRequest) {
     // Decrement the number of reads and return the remaining reads
     remainingReads = await redis.hincrby(key, "remainingReads", -1);
   }
-  console.log(data.password)
   return NextResponse.json({
     iv: data.iv,
     encrypted: data.encrypted,

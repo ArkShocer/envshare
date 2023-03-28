@@ -6,10 +6,7 @@ export default function Head() {
       <meta name="description" content="NXSecretShare" />
       <meta name="theme-color" content="#000000" />
       <meta name="title" content="Share Securely" />
-      <meta
-        name="keywords"
-        content="envshare, secure, secrets, share, environment, variables"
-      />
+      <meta name="keywords" content="secure, secrets, share, variables" />
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
       <meta name="robots" content="noindex" />
